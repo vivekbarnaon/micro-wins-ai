@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply m-0 min-h-screen bg-calm-bg text-calm-text font-standard antialiased;
+  }
+
+  body.dyslexic-font {
+    @apply font-dyslexic;
+  }
+
+  /* Accessibility: Focus visible for keyboard navigation */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-calm-primary ring-2 ring-calm-primary/30;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    body {
+      @apply contrast-125;
+    }
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better text rendering */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer utilities {
+  /* Skip to main content link for screen readers */
+  .skip-to-main {
+    @apply absolute left-0 top-0 -translate-y-full bg-calm-primary text-white px-4 py-2 z-50 focus:translate-y-0 transition-transform;
+  }
+
+  /* Neuro-inclusive design utilities */
+  .calm-focus {
+    @apply focus:ring-2 focus:ring-calm-primary/30 focus:border-calm-primary transition-all duration-200;
+  }
+
+  .calm-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
