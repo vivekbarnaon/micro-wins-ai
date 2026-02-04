@@ -1,118 +1,130 @@
-"""
-User Profile Management Module
-Handles user profile operations and data
-"""
-
-import azure.functions as func
 import json
-from typing import Dict, Any, Optional
-from auth.verify_token import require_auth
+import azure.functions as func
+
+from database.db import get_db_connection
 
 
-async def get_user_profile(user_id: str) -> Optional[Dict[str, Any]]:
+def handle_get_profile(req: func.HttpRequest) -> func.HttpResponse:
     """
-    Retrieve user profile from database
-    
-    Args:
-        user_id: User identifier
-        
-    Returns:
-        User profile data or None
+    GET user profile
+    Query param required: user_id
     """
-    # TODO: Implement database query
-    # from database.db import get_db_connection
-    
-    # Mock data for now
-    return {
-        "user_id": user_id,
-        "name": "User Name",
-        "email": "user@example.com",
-        "created_at": "2026-01-01T00:00:00Z"
+
+    user_id = req.params.get("user_id")
+
+    if not user_id:
+        return func.HttpResponse(
+            "user_id is required",
+            status_code=400
+        )
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT user_id, step_granularity, font_preference, input_mode
+        FROM users
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+
+    user = cursor.fetchone()
+    conn.close()
+
+    if not user:
+        # First-time user (profile not created yet)
+        return func.HttpResponse(
+            json.dumps({"exists": False}),
+            status_code=200,
+            mimetype="application/json"
+        )
+
+    response = {
+        "exists": True,
+        "user_id": user["user_id"],
+        "step_granularity": user["step_granularity"],
+        "font_preference": user["font_preference"],
+        "input_mode": user["input_mode"]
     }
 
-
-async def update_user_profile(user_id: str, data: Dict[str, Any]) -> bool:
-    """
-    Update user profile in database
-    
-    Args:
-        user_id: User identifier
-        data: Profile data to update
-        
-    Returns:
-        True if successful, False otherwise
-    """
-    # TODO: Implement database update
-    # from database.db import get_db_connection
-    
-    return True
+    return func.HttpResponse(
+        json.dumps(response),
+        status_code=200,
+        mimetype="application/json"
+    )
 
 
-@require_auth
-async def handle_get_profile(req: func.HttpRequest, user_id: str) -> func.HttpResponse:
+def handle_update_profile(req: func.HttpRequest) -> func.HttpResponse:
     """
-    HTTP trigger to get user profile
-    Protected route - requires authentication
+    Create or update user profile
+    Body:
+    {
+      "user_id": "user_123",
+      "step_granularity": "micro",
+      "font_preference": "standard",
+      "input_mode": "text"
+    }
     """
+
     try:
-        profile = await get_user_profile(user_id)
-        
-        if not profile:
-            return func.HttpResponse(
-                json.dumps({"error": "User not found"}),
-                status_code=404,
-                mimetype="application/json"
-            )
-        
-        return func.HttpResponse(
-            json.dumps(profile),
-            status_code=200,
-            mimetype="application/json"
-        )
-    
-    except Exception as e:
-        return func.HttpResponse(
-            json.dumps({"error": str(e)}),
-            status_code=500,
-            mimetype="application/json"
-        )
-
-
-@require_auth
-async def handle_update_profile(req: func.HttpRequest, user_id: str) -> func.HttpResponse:
-    """
-    HTTP trigger to update user profile
-    Protected route - requires authentication
-    """
-    try:
-        # Parse request body
-        req_body = req.get_json()
-        
-        # Update profile
-        success = await update_user_profile(user_id, req_body)
-        
-        if not success:
-            return func.HttpResponse(
-                json.dumps({"error": "Failed to update profile"}),
-                status_code=500,
-                mimetype="application/json"
-            )
-        
-        return func.HttpResponse(
-            json.dumps({"message": "Profile updated successfully"}),
-            status_code=200,
-            mimetype="application/json"
-        )
-    
+        body = req.get_json()
     except ValueError:
         return func.HttpResponse(
-            json.dumps({"error": "Invalid JSON"}),
-            status_code=400,
-            mimetype="application/json"
+            "Invalid JSON body",
+            status_code=400
         )
-    except Exception as e:
+
+    user_id = body.get("user_id")
+    step_granularity = body.get("step_granularity")
+    font_preference = body.get("font_preference")
+    input_mode = body.get("input_mode")
+
+    if not all([user_id, step_granularity, font_preference, input_mode]):
         return func.HttpResponse(
-            json.dumps({"error": str(e)}),
-            status_code=500,
-            mimetype="application/json"
+            "Missing required fields",
+            status_code=400
         )
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Check if user exists
+    cursor.execute(
+        """
+        SELECT user_id
+        FROM users
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+
+    exists = cursor.fetchone()
+
+    if exists:
+        cursor.execute(
+            """
+            UPDATE users
+            SET step_granularity = ?, font_preference = ?, input_mode = ?
+            WHERE user_id = ?
+            """,
+            (step_granularity, font_preference, input_mode, user_id)
+        )
+    else:
+        cursor.execute(
+            """
+            INSERT INTO users (user_id, step_granularity, font_preference, input_mode)
+            VALUES (?, ?, ?, ?)
+            """,
+            (user_id, step_granularity, font_preference, input_mode)
+        )
+
+    conn.commit()
+    conn.close()
+
+    return func.HttpResponse(
+        json.dumps({"status": "saved"}),
+        status_code=200,
+        mimetype="application/json"
+    )
