@@ -1,7 +1,8 @@
 import re
 from ai.llm_client import get_llm
 from ai.prompt import get_task_breakdown_prompt
-from ai.task_breaker import generate_task_breakdown
+
+
 def mask_pii_light(text: str) -> str:
     """
     Lightweight PII masking to avoid sending names/identifiers to LLM.
