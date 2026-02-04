@@ -1,0 +1,19 @@
+# Azure Functions Core
+azure-functions
+
+# JWT Authentication
+PyJWT==2.8.0
+
+# Database Drivers (uncomment as needed)
+# azure-cosmos>=4.5.1              # For Azure Cosmos DB
+# asyncpg>=0.29.0                  # For PostgreSQL async
+
+# AI/ML
+# openai>=1.10.0                   # For OpenAI GPT integration
+
+# Utilities
+python-dateutil>=2.8.2
+
+# Azure Monitor OpenTelemetry (uncomment to enable)
+# Ref: aka.ms/functions-azure-monitor-python
+# azure-monitor-opentelemetry
