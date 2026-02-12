@@ -15,13 +15,23 @@ const Navbar = () => {
     return location.pathname === path;
   };
   return (
-    <nav className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-50 transition-colors duration-300">
+    <nav className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand - Clickable to root/login */}
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <Logo size={40} />
-            <span className="text-xl font-bold text-calm-text dark:text-white">MicroWins</span>
+            <span className="text-xl font-bold text-calm-text dark:text-white">
+              <span className="inline-block hover:animate-pulse">M</span>
+              <span className="inline-block hover:animate-pulse" style={{ animationDelay: '0.1s' }}>i</span>
+              <span className="inline-block hover:animate-pulse" style={{ animationDelay: '0.2s' }}>c</span>
+              <span className="inline-block hover:animate-pulse" style={{ animationDelay: '0.3s' }}>r</span>
+              <span className="inline-block hover:animate-pulse" style={{ animationDelay: '0.4s' }}>o</span>
+              <span className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse">W</span>
+              <span className="inline-block hover:animate-pulse" style={{ animationDelay: '0.5s' }}>i</span>
+              <span className="inline-block hover:animate-pulse" style={{ animationDelay: '0.6s' }}>n</span>
+              <span className="inline-block hover:animate-pulse" style={{ animationDelay: '0.7s' }}>s</span>
+            </span>
           </Link>
 
           {/* Navigation Links - Centered */}

@@ -27,6 +27,48 @@
     }
   }
 
+  /* Animation delay utilities */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  /* Custom keyframe animations */
+  @keyframes morphBlob {
+    0%, 100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    25% {
+      transform: translate(100px, -100px) scale(1.1) rotate(90deg);
+    }
+    50% {
+      transform: translate(-50px, 50px) scale(0.9) rotate(180deg);
+    }
+    75% {
+      transform: translate(80px, 80px) scale(1.05) rotate(270deg);
+    }
+  }
+
+  @keyframes slideRight {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(200%);
+      opacity: 0;
+    }
+  }
+
   /* High contrast mode support */
   @media (prefers-contrast: high) {
     body {

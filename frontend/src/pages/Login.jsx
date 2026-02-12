@@ -8,6 +8,7 @@ import { useState } from 'react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Logo from '../components/Logo';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ROUTES } from '../utils/constants';
 import { signInWithGoogle } from '../firebase/auth';
 
@@ -30,17 +31,25 @@ const Login = () => {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 flex items-center justify-center px-4 py-8 transition-colors duration-300">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 flex items-center justify-center px-4 py-8 transition-colors duration-300 relative overflow-hidden">
+      <AnimatedBackground variant="calm" />
+      <div className="w-full max-w-md animate-fade-in">
         {/* Logo/Icon Area */}
-        <div className="text-center mb-10">
-          <div className="flex justify-center mb-4">
+        <div className="text-center mb-10 animate-slide-up">
+          <div className="flex justify-center mb-4 animate-scale-in">
             <Logo size={48} />
           </div>
           <h1 className="text-3xl font-bold text-calm-text dark:text-white mb-2">
-            MicroWins
+            <span className="inline-block animate-[bounce_2s_ease-in-out_infinite]">M</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.1s_infinite]">i</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.2s_infinite]">c</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.3s_infinite]">r</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.4s_infinite]">o</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.5s_infinite]">W</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.6s_infinite]">i</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.7s_infinite]">n</span>
+            <span className="inline-block animate-[bounce_2s_ease-in-out_0.8s_infinite]">s</span>
           </h1>
           <p className="text-calm-textLight dark:text-gray-300">
             Break big goals into small wins
@@ -48,7 +57,7 @@ const Login = () => {
         </div>
 
         {/* Login Card */}
-        <Card className="p-8">
+        <Card className="p-8 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-2xl border border-white/20 dark:border-gray-700/30 animate-slide-up">
           <div className="mb-6 text-center">
             <h2 className="text-2xl font-semibold text-calm-text dark:text-white mb-2">
               Welcome Back

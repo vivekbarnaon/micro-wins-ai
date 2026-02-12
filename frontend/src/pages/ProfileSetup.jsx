@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ROUTES, STEP_SIZES, FONT_TYPES, INPUT_MODES } from '../utils/constants';
 
 const ProfileSetup = () => {
@@ -44,14 +45,14 @@ const ProfileSetup = () => {
       {children}
     </button>
   );
-
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
-      <Card padding="large" className="w-full max-w-lg">
-        <h1 className="text-2xl font-semibold text-calm-text mb-2 text-center">
+    <div className="flex items-center justify-center min-h-[80vh] relative overflow-hidden">
+      <AnimatedBackground variant="calm" />
+      <Card padding="large" className="w-full max-w-lg backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 shadow-2xl border border-white/30 dark:border-gray-700/30 animate-fade-in hover:shadow-3xl transition-all duration-300">
+        <h1 className="text-2xl font-semibold text-calm-text dark:text-white mb-2 text-center">
           Set Your Preferences
         </h1>
-        <p className="text-calm-textLight mb-8 text-center text-sm">
+        <p className="text-calm-textLight dark:text-gray-300 mb-8 text-center text-sm">
           Customize your experience
         </p>
 

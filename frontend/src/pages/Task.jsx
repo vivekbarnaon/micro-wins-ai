@@ -9,6 +9,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import ProgressBar from '../components/ProgressBar';
 import StepCard from '../components/StepCard';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ROUTES } from '../utils/constants';
 import { calculateProgress } from '../utils/helpers';
 
@@ -43,38 +44,38 @@ const Task = () => {
   const handleBack = () => {
     navigate(ROUTES.HOME);
   };
-
   // Completion Screen
   if (isCompleted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-green-50 dark:from-gray-900 dark:via-green-900 dark:to-teal-900 flex items-center justify-center px-4 py-8 transition-colors duration-300">
-        <div className="w-full max-w-2xl text-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-green-50 dark:from-gray-900 dark:via-green-900 dark:to-teal-900 flex items-center justify-center px-4 py-8 transition-colors duration-300 relative overflow-hidden">
+        <AnimatedBackground variant="success" />
+        <div className="w-full max-w-2xl text-center animate-fade-in">
           {/* Success Animation Area */}
-          <div className="mb-8 animate-bounce-slow">
-            <div className="inline-flex items-center justify-center w-32 h-32 bg-green-100 rounded-full mb-6">
-              <svg className="w-16 h-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mb-8 animate-scale-in">
+            <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-green-100 to-teal-100 dark:from-green-800/50 dark:to-teal-800/50 rounded-full mb-6 shadow-2xl animate-bounce">
+              <svg className="w-16 h-16 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
 
           {/* Completion Message */}
-          <Card padding="large" className="shadow-2xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-white/95 dark:bg-gray-800/95 mb-8">
+          <Card padding="large" className="shadow-2xl border border-white/30 dark:border-gray-700/30 backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 mb-8 animate-slide-up hover:shadow-3xl transition-all duration-300">
             <h1 className="text-4xl font-bold text-calm-text dark:text-white mb-4">
               Task Completed! 🎉
             </h1>
             <p className="text-xl text-calm-textLight mb-6">
               Nice work. You completed all steps.
             </p>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-              <p className="text-calm-text font-semibold mb-2">
+            <div className="bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/30 dark:to-teal-900/30 border border-green-200 dark:border-green-700 rounded-lg p-6 mb-6">
+              <p className="text-calm-text dark:text-white font-semibold mb-2">
                 {currentStep.taskTitle}
               </p>
-              <p className="text-sm text-calm-textLight">
+              <p className="text-sm text-calm-textLight dark:text-gray-300">
                 ✓ {currentStep.totalSteps} steps completed
               </p>
             </div>
-            <p className="text-sm text-calm-textLight italic">
+            <p className="text-sm text-calm-textLight dark:text-gray-300 italic">
               "Progress is progress, no matter how small. You did great today."
             </p>
           </Card>
@@ -120,10 +121,11 @@ const Task = () => {
 
   // Active Task Screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-blue-900 dark:to-cyan-900 flex items-center justify-center px-4 py-8 transition-colors duration-300">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-blue-900 dark:to-cyan-900 flex items-center justify-center px-4 py-8 transition-colors duration-300 relative overflow-hidden">
+      <AnimatedBackground variant="default" />
+      <div className="w-full max-w-2xl animate-fade-in">
         {/* Header with Task Title */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 animate-slide-up">
           <button
             onClick={handleBack}
             className="inline-flex items-center gap-2 text-calm-textLight hover:text-calm-text transition-colors mb-4"
@@ -150,7 +152,7 @@ const Task = () => {
         </div>
 
         {/* Current Step Card */}
-        <Card padding="large" className="shadow-2xl border border-gray-100 backdrop-blur-sm bg-white/95 mb-8">
+        <Card padding="large" className="shadow-2xl border border-white/30 dark:border-gray-700/30 backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 mb-8 animate-slide-up hover:shadow-3xl transition-all duration-300">
           <StepCard
             stepNumber={currentStep.stepNumber}
             totalSteps={currentStep.totalSteps}

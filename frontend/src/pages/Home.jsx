@@ -9,6 +9,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import EnergySelector from '../components/EnergySelector';
 import Logo from '../components/Logo';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ROUTES, ENERGY_LEVELS } from '../utils/constants';
 
 const Home = () => {
@@ -31,11 +32,12 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 flex items-center justify-center px-4 py-8 transition-colors duration-300">
-      <div className="w-full max-w-3xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 flex items-center justify-center px-4 py-8 transition-colors duration-300 relative overflow-hidden">
+      <AnimatedBackground variant="energy" />
+      <div className="w-full max-w-3xl animate-fade-in">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-block mb-6 transform hover:scale-105 transition-transform duration-300">
+        <div className="text-center mb-12 animate-slide-up">
+          <div className="inline-block mb-6 transform hover:scale-110 transition-transform duration-300 animate-scale-in">
             <Logo size={120} />
           </div>
           <h1 className="text-5xl font-bold text-calm-text dark:text-white mb-4 leading-tight">
@@ -47,7 +49,7 @@ const Home = () => {
         </div>
 
         {/* Main Card */}
-        <Card padding="large" className="shadow-2xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-white/95 dark:bg-gray-800/95">
+        <Card padding="large" className="shadow-2xl border border-white/30 dark:border-gray-700/30 backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 animate-slide-up hover:shadow-3xl transition-all duration-300">
           {/* Task Input */}
           <div className="mb-10">
             <label htmlFor="task" className="block text-base font-semibold text-calm-text dark:text-white mb-4 flex items-center gap-2">

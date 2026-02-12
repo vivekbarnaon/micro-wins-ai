@@ -9,6 +9,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import EnergySelector from '../components/EnergySelector';
 import FontToggle from '../components/FontToggle';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { ROUTES, STEP_SIZES, FONT_TYPES, INPUT_MODES, ENERGY_LEVELS } from '../utils/constants';
 
 const Profile = () => {
@@ -62,11 +63,12 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 dark:from-gray-900 dark:via-indigo-900 dark:to-pink-900 py-12 px-4 transition-colors duration-300">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 dark:from-gray-900 dark:via-indigo-900 dark:to-pink-900 py-12 px-4 transition-colors duration-300 relative overflow-hidden">
+      <AnimatedBackground variant="default" />
+      <div className="max-w-3xl mx-auto animate-fade-in">
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-calm-primary to-purple-500 rounded-full mb-6 shadow-lg">
+        <div className="text-center mb-10 animate-slide-up">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-calm-primary to-purple-500 rounded-full mb-6 shadow-2xl animate-scale-in">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -80,7 +82,7 @@ const Profile = () => {
         </div>
 
         {/* Preferences Card */}
-        <Card padding="large" className="shadow-2xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-white/95 dark:bg-gray-800/95 mb-6">
+        <Card padding="large" className="shadow-2xl border border-white/30 dark:border-gray-700/30 backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 mb-6 animate-slide-up hover:shadow-3xl transition-all duration-300">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-semibold text-calm-text dark:text-white">
               Preferences
