@@ -10,7 +10,9 @@ A modern, minimal, and gamified productivity companion for neurodivergent and ne
 
 ---
 
-![Micro-Wins UI Preview](https://user-images.githubusercontent.com/placeholder/micro-wins-ui.png)
+<p align="center">
+   <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/trophy.svg" alt="Micro-Wins Logo" width="120" height="120"/>
+</p>
 
 ---
 
