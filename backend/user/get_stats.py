@@ -39,6 +39,20 @@ def handle_get_user_stats(req: func.HttpRequest) -> func.HttpResponse:
     completed_result = cursor.fetchone()
     total_completed = completed_result["total"] if completed_result else 0
 
+    # Get reward points, streak, last_completed_date from user_stats
+    cursor.execute(
+        """
+        SELECT reward_points, streak, last_completed_date
+        FROM user_stats
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+    stats_row = cursor.fetchone()
+    reward_points = stats_row["reward_points"] if stats_row else 0
+    streak = stats_row["streak"] if stats_row else 0
+    last_completed_date = stats_row["last_completed_date"] if stats_row else None
+
     # Total tasks in progress
     cursor.execute(
         """
@@ -79,11 +93,26 @@ def handle_get_user_stats(req: func.HttpRequest) -> func.HttpResponse:
 
     conn.close()
 
+
+    # Motivational message logic
+    if streak >= 7:
+        motivational_message = "🔥 Amazing! You're on a hot streak!"
+    elif streak >= 3:
+        motivational_message = "🌟 Great job! Keep your streak going!"
+    elif total_completed > 0:
+        motivational_message = "👏 Every step counts. Keep it up!"
+    else:
+        motivational_message = "Let's get started with your first win!"
+
     response = {
         "user_id": user_id,
         "total_tasks_completed": total_completed,
         "total_tasks_active": total_active,
         "total_steps_completed": total_steps,
+        "reward_points": reward_points,
+        "streak": streak,
+        "last_completed_date": last_completed_date,
+        "motivational_message": motivational_message,
         "recent_tasks": [
             {
                 "task_name": task["task_name"],

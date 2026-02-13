@@ -35,6 +35,18 @@ def handle_get_profile(req: func.HttpRequest) -> func.HttpResponse:
 
     if not user:
         # First-time user (profile not created yet)
+        # Create user_stats row for this user if not exists
+        conn2 = get_db_connection()
+        cursor2 = conn2.cursor()
+        cursor2.execute(
+            """
+            INSERT OR IGNORE INTO user_stats (user_id, reward_points, streak, last_completed_date)
+            VALUES (?, 0, 0, NULL)
+            """,
+            (user_id,)
+        )
+        conn2.commit()
+        conn2.close()
         return func.HttpResponse(
             json.dumps({"exists": False}),
             status_code=200,

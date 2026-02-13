@@ -3,7 +3,7 @@
  * Displays one step at a time
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -19,11 +19,65 @@ const Task = () => {
   const [currentStep, setCurrentStep] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  // Timer and break state
+  const [timeLeft, setTimeLeft] = useState(null); // in seconds
+  const [timerActive, setTimerActive] = useState(false);
+  const [pauseStart, setPauseStart] = useState(null);
+  const [paused, setPaused] = useState(false);
+  const [breakActive, setBreakActive] = useState(false);
+  const [breakTimeLeft, setBreakTimeLeft] = useState(300); // default 5 min break
+  const [showBreakReminder, setShowBreakReminder] = useState(false);
+  const breakLimit = 300; // 5 min in seconds
+  const breakTimerRef = useRef();
 
   // Load current step on mount
   useEffect(() => {
     loadCurrentStep();
   }, []);
+
+  // Start timer when step loads
+  useEffect(() => {
+    if (currentStep && currentStep.estimatedTime) {
+      setTimeLeft(currentStep.estimatedTime * 60); // convert min to sec
+      setTimerActive(true);
+    }
+  }, [currentStep]);
+
+  // Task countdown logic
+  useEffect(() => {
+    if (!timerActive || paused || !timeLeft) return;
+    if (timeLeft <= 0) {
+      setTimerActive(false);
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimeLeft((t) => (t > 0 ? t - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timerActive, paused, timeLeft]);
+
+  // Pause logic (no reminder)
+  useEffect(() => {
+    if (paused) {
+      setPauseStart(Date.now());
+    } else {
+      setPauseStart(null);
+    }
+  }, [paused]);
+
+  // Break timer logic
+  useEffect(() => {
+    if (!breakActive) return;
+    if (breakTimeLeft <= 0) {
+      setShowBreakReminder(true);
+      setBreakActive(false);
+      return;
+    }
+    breakTimerRef.current = setInterval(() => {
+      setBreakTimeLeft((t) => (t > 0 ? t - 1 : 0));
+    }, 1000);
+    return () => clearInterval(breakTimerRef.current);
+  }, [breakActive, breakTimeLeft]);
 
   const loadCurrentStep = async () => {
     const taskId = localStorage.getItem('currentTaskId');
@@ -58,6 +112,30 @@ const Task = () => {
   };
 
   const handleDone = async () => {
+    setTimerActive(false);
+    setPaused(false);
+      // Timer controls
+      const handlePause = () => {
+        setPaused(true);
+        setTimerActive(false);
+      };
+      const handleResume = () => {
+        setPaused(false);
+        setTimerActive(true);
+      };
+
+      // Break controls
+      const handleStartBreak = () => {
+        setBreakActive(true);
+        setShowBreakReminder(false);
+        setBreakTimeLeft(breakLimit);
+      };
+      const handlePauseBreak = () => {
+        setBreakActive(false);
+      };
+      const handleResumeBreak = () => {
+        setBreakActive(true);
+      };
     const taskId = localStorage.getItem('currentTaskId');
     if (!taskId) return;
 
@@ -118,6 +196,13 @@ const Task = () => {
   const progress = calculateProgress(currentStep.stepNumber, currentStep.totalSteps);
   const isLastStep = currentStep.stepNumber === currentStep.totalSteps;
 
+  // Format seconds as mm:ss
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
   // Active Task Screen
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-blue-900 dark:to-cyan-900 flex items-center justify-center px-4 py-8 transition-colors duration-300 relative overflow-hidden">
@@ -142,13 +227,25 @@ const Task = () => {
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
+        {/* Progress Bar & Timer */}
+        <div className="mb-8 flex flex-col items-center gap-2">
           <ProgressBar progress={progress} />
           <p className="text-center text-sm text-calm-textLight mt-3">
             Step {currentStep.stepNumber} of {currentStep.totalSteps} • {progress}% complete
             {currentStep.estimatedTime && ` • ~${currentStep.estimatedTime} min`}
           </p>
+          {/* Task Timer */}
+          <div className="flex items-center gap-3 mt-2">
+            <span className="font-mono text-lg bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded">
+              {timeLeft !== null ? formatTime(timeLeft) : '--:--'}
+            </span>
+            {timerActive && !paused && (
+              <Button size="small" variant="secondary" onClick={handlePause}>Pause</Button>
+            )}
+            {paused && (
+              <Button size="small" variant="primary" onClick={handleResume}>Resume</Button>
+            )}
+          </div>
         </div>
 
         {/* Current Step Card */}
@@ -161,8 +258,32 @@ const Task = () => {
           />
         </Card>
 
-        {/* Action Buttons */}
+        {/* Action Buttons & Break Timer */}
         <div className="space-y-4">
+                    {/* Break Timer UI */}
+                    <div className="flex items-center gap-3 mt-4">
+                      <Button size="small" variant="secondary" onClick={handleStartBreak} disabled={breakActive}>Start Break</Button>
+                      {breakActive && (
+                        <>
+                          <span className="font-mono text-base bg-blue-50 dark:bg-blue-900 px-3 py-1 rounded">
+                            {formatTime(breakTimeLeft)}
+                          </span>
+                          <Button size="small" variant="secondary" onClick={handlePauseBreak}>Pause</Button>
+                          <Button size="small" variant="primary" onClick={handleResumeBreak}>Resume</Button>
+                        </>
+                      )}
+                    </div>
+
+                  {/* Break Overdue Reminder */}
+                  {showBreakReminder && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/30">
+                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-sm text-center animate-fade-in">
+                        <h2 className="text-xl font-bold mb-2 text-calm-text">Break Limit Exceeded</h2>
+                        <p className="text-calm-textLight mb-4">Your break exceeded the allowed time.<br/>Let's get back to your task for best results!</p>
+                        <Button variant="primary" onClick={() => setShowBreakReminder(false)}>OK</Button>
+                      </div>
+                    </div>
+                  )}
           <Button
             variant="success"
             size="large"

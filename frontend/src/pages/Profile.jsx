@@ -55,18 +55,34 @@ const Profile = () => {
   useEffect(() => {
     const loadStats = async () => {
       if (!user?.uid) return;
-      
       try {
         setLoadingStats(true);
         const data = await userAPI.getStats(user.uid);
-        setStats(data);
+        // Map backend fields to frontend expectations
+        // completed_today: 1 if last_completed_date is today, else 0
+        let completed_today = 0;
+        if (data.last_completed_date) {
+          const today = new Date();
+          const last = new Date(data.last_completed_date);
+          if (
+            today.getFullYear() === last.getFullYear() &&
+            today.getMonth() === last.getMonth() &&
+            today.getDate() === last.getDate()
+          ) {
+            completed_today = 1;
+          }
+        }
+        setStats({
+          ...data,
+          current_streak: data.streak,
+          completed_today,
+        });
       } catch (err) {
         console.error('Failed to load stats:', err);
       } finally {
         setLoadingStats(false);
       }
     };
-
     loadStats();
   }, [user]);
 
@@ -282,7 +298,7 @@ const Profile = () => {
           )}
         </Card>
 
-        {/* Stats Card */}
+        {/* Stats Card - Enhanced with rewards, streak, motivational message */}
         <Card className="shadow-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-white/95 dark:bg-gray-800/95 mb-6">
           <h3 className="text-xl font-semibold text-calm-text dark:text-white mb-4">Your Progress</h3>
           {loadingStats ? (
@@ -290,20 +306,40 @@ const Profile = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-calm-primary"></div>
             </div>
           ) : stats ? (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-3xl font-bold text-calm-primary dark:text-blue-400">{stats.total_tasks_completed}</p>
-                <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Tasks Completed</p>
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-3xl font-bold text-calm-primary dark:text-blue-400">{stats.total_tasks_completed}</p>
+                  <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Tasks Completed</p>
+                </div>
+                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.total_steps_completed}</p>
+                  <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Steps Done</p>
+                </div>
+                <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.total_tasks_active}</p>
+                  <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Active Tasks</p>
+                </div>
+                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <p className="text-3xl font-bold text-yellow-500 dark:text-yellow-400">{stats.completed_today ?? 0}</p>
+                  <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Completed Today</p>
+                </div>
+                <div className="text-center p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                  <p className="text-3xl font-bold text-pink-500 dark:text-pink-400">{stats.current_streak ?? 0} 🔥</p>
+                  <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Current Streak</p>
+                </div>
+                <div className="text-center p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                  <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{stats.reward_points ?? 0}</p>
+                  <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Reward Points</p>
+                </div>
               </div>
-              <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.total_steps_completed}</p>
-                <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Steps Done</p>
+              {/* Motivational message from backend */}
+              <div className="text-center mt-2 mb-1">
+                <p className="text-calm-textLight dark:text-gray-300 text-lg font-medium">
+                  {stats.motivational_message}
+                </p>
               </div>
-              <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.total_tasks_active}</p>
-                <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Active Tasks</p>
-              </div>
-            </div>
+            </>
           ) : (
             <p className="text-calm-textLight dark:text-gray-300 text-center py-4">Start completing tasks to see your progress!</p>
           )}

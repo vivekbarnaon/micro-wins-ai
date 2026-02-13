@@ -51,5 +51,17 @@ def create_tables():
         )
     """)
 
+    # User stats table (reward points, streak, last activity)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_stats (
+            user_id TEXT PRIMARY KEY,
+            reward_points INTEGER DEFAULT 0,
+            streak INTEGER DEFAULT 0,
+            last_active_date DATE,
+            last_completed_date DATE,
+            FOREIGN KEY (user_id) REFERENCES users (user_id)
+        )
+    """)
+
     conn.commit()
     conn.close()

@@ -97,6 +97,65 @@ def handle_mark_step_done(req: func.HttpRequest) -> func.HttpResponse:
             """,
             (task_id,)
         )
+        # Get user_id for this task
+        cursor.execute(
+            """
+            SELECT user_id FROM tasks WHERE task_id = ?
+            """,
+            (task_id,)
+        )
+        user_row = cursor.fetchone()
+        user_id = user_row["user_id"] if user_row else None
+
+        if user_id:
+            # Check if user_stats row exists
+            cursor.execute(
+                """
+                SELECT reward_points, streak, last_completed_date FROM user_stats WHERE user_id = ?
+                """,
+                (user_id,)
+            )
+            stats = cursor.fetchone()
+            from datetime import datetime, timedelta, date
+            today = date.today()
+            reward_increment = 10  # Points per completed task
+            if stats:
+                last_date = stats["last_completed_date"]
+                streak = stats["streak"] or 0
+                reward_points = stats["reward_points"] or 0
+                # Check streak (consecutive days)
+                if last_date:
+                    try:
+                        last_date_obj = datetime.strptime(last_date, "%Y-%m-%d").date()
+                    except Exception:
+                        last_date_obj = today
+                    if (today - last_date_obj).days == 1:
+                        streak += 1
+                    elif (today - last_date_obj).days == 0:
+                        # Same day, don't increment streak
+                        pass
+                    else:
+                        streak = 1
+                else:
+                    streak = 1
+                reward_points += reward_increment
+                cursor.execute(
+                    """
+                    UPDATE user_stats
+                    SET reward_points = ?, streak = ?, last_completed_date = ?
+                    WHERE user_id = ?
+                    """,
+                    (reward_points, streak, today.isoformat(), user_id)
+                )
+            else:
+                # Insert new row
+                cursor.execute(
+                    """
+                    INSERT INTO user_stats (user_id, reward_points, streak, last_completed_date)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (user_id, reward_increment, 1, today.isoformat())
+                )
         conn.commit()
         conn.close()
 
