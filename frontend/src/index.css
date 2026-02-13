@@ -1,0 +1,124 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.0-alpha.2/open-dyslexic.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply m-0 min-h-screen bg-calm-bg text-calm-text font-standard antialiased;
+  }
+
+  body.dyslexic-font {
+    @apply font-dyslexic;
+  }
+
+  body.lexend-font {
+    @apply font-lexend;
+  }
+
+  /* Accessibility: Focus visible for keyboard navigation */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-calm-primary ring-2 ring-calm-primary/30;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Animation delay utilities */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  /* Custom keyframe animations */
+  @keyframes morphBlob {
+    0%, 100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    25% {
+      transform: translate(100px, -100px) scale(1.1) rotate(90deg);
+    }
+    50% {
+      transform: translate(-50px, 50px) scale(0.9) rotate(180deg);
+    }
+    75% {
+      transform: translate(80px, 80px) scale(1.05) rotate(270deg);
+    }
+  }
+
+  @keyframes slideRight {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(200%);
+      opacity: 0;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    body {
+      @apply contrast-125;
+    }
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better text rendering */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer utilities {
+  /* Font utilities for accessibility fonts */
+  .font-lexend {
+    font-family: 'Lexend', Inter, system-ui, sans-serif;
+  }
+  .font-dyslexic {
+    font-family: 'OpenDyslexic3', 'Comic Sans MS', sans-serif;
+  }
+
+  /* Visually hide skip link except on focus */
+  .skip-to-main {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateY(-100%);
+    background: #3498DB;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    z-index: 50;
+    transition: transform 0.2s;
+  }
+  .skip-to-main:focus {
+    transform: translateY(0);
+  }
+}
