@@ -11,7 +11,7 @@ A modern, minimal, and gamified productivity companion for neurodivergent and ne
 ---
 
 <p align="center">
-   <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/trophy.svg" alt="Micro-Wins Logo" width="120" height="120"/>
+   <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/trophy.svg" alt="Micro-Wins Logo" width="100" height="100"/>
 </p>
 
 ---
