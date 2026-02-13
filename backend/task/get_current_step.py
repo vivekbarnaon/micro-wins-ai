@@ -26,10 +26,10 @@ def handle_get_current_step(req: func.HttpRequest) -> func.HttpResponse:
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Get task progress
+    # Get task progress and task name
     cursor.execute(
         """
-        SELECT current_step_index, status
+        SELECT current_step_index, status, task_name
         FROM tasks
         WHERE task_id = ?
         """,
@@ -47,12 +47,24 @@ def handle_get_current_step(req: func.HttpRequest) -> func.HttpResponse:
     if task["status"] == "completed":
         conn.close()
         return func.HttpResponse(
-            json.dumps({"status": "completed"}),
+            json.dumps({"completed": True}),
             status_code=200,
             mimetype="application/json"
         )
 
     current_step_order = task["current_step_index"] + 1
+
+    # Get total steps count
+    cursor.execute(
+        """
+        SELECT COUNT(*) as total
+        FROM task_steps
+        WHERE task_id = ?
+        """,
+        (task_id,)
+    )
+    total_result = cursor.fetchone()
+    total_steps = total_result["total"]
 
     # Fetch current step only
     cursor.execute(
@@ -69,16 +81,19 @@ def handle_get_current_step(req: func.HttpRequest) -> func.HttpResponse:
 
     if not step:
         return func.HttpResponse(
-            json.dumps({"status": "completed"}),
+            json.dumps({"completed": True}),
             status_code=200,
             mimetype="application/json"
         )
 
     response = {
         "task_id": int(task_id),
-        "step_number": step["step_order"],
-        "step_text": step["step_text"],
-        "estimated_time_minutes": step["estimated_time_minutes"]
+        "task_name": task["task_name"],
+        "current_step_number": step["step_order"],
+        "total_steps": total_steps,
+        "step_description": step["step_text"],
+        "estimated_time_minutes": step["estimated_time_minutes"],
+        "completed": False
     }
 
     return func.HttpResponse(

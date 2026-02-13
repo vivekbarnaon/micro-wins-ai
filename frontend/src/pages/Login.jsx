@@ -23,7 +23,16 @@ const Login = () => {
       setError('');
       const user = await signInWithGoogle();
       console.log('User signed in:', user);
-      navigate(ROUTES.SETUP);
+      
+      // Check if user has completed profile setup
+      const userPreferences = localStorage.getItem('userPreferences');
+      if (userPreferences) {
+        // Profile already exists, go to home
+        navigate(ROUTES.HOME);
+      } else {
+        // New user, go to profile setup
+        navigate(ROUTES.SETUP);
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError('Failed to sign in with Google. Please try again.');

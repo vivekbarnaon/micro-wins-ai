@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import MainLayout from './layouts/MainLayout';
 import Login from './pages/Login';
 import ProfileSetup from './pages/ProfileSetup';
-import Home from './pages/Home';
+import HomeChat from './pages/HomeChat';
 import Task from './pages/Task';
 import Profile from './pages/Profile';
 import { ROUTES } from './utils/constants';
@@ -38,7 +38,7 @@ function App() {
         
         <Route path={ROUTES.HOME} element={
           <MainLayout>
-            <Home />
+            <HomeChat />
           </MainLayout>
         } />
         

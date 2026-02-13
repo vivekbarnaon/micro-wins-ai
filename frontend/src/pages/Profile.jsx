@@ -11,20 +11,64 @@ import EnergySelector from '../components/EnergySelector';
 import FontToggle from '../components/FontToggle';
 import AnimatedBackground from '../components/AnimatedBackground';
 import { ROUTES, STEP_SIZES, FONT_TYPES, INPUT_MODES, ENERGY_LEVELS } from '../utils/constants';
+import { userAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { logout } from '../firebase/auth';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
-  // Load preferences from localStorage
-  const [preferences, setPreferences] = useState({
-    stepSize: localStorage.getItem('stepSize') || STEP_SIZES.NORMAL,
-    fontType: localStorage.getItem('fontType') || FONT_TYPES.STANDARD,
-    inputMode: localStorage.getItem('inputMode') || INPUT_MODES.TEXT,
-    energyLevel: ENERGY_LEVELS.MEDIUM
-  });
-  
+  // Load preferences from localStorage (userPreferences format)
+  const loadPreferences = () => {
+    const saved = localStorage.getItem('userPreferences');
+    if (saved) {
+      const prefs = JSON.parse(saved);
+      return {
+        stepSize: prefs.stepSize || STEP_SIZES.NORMAL,
+        fontType: prefs.fontType || FONT_TYPES.STANDARD,
+        inputMode: prefs.inputMode || INPUT_MODES.TEXT,
+        neurodivergence: prefs.neurodivergence || 'ADHD',
+        breakInterval: prefs.breakInterval || 25,
+        aiTone: prefs.aiTone || ['calm'],
+        verbosity: prefs.verbosity || 3
+      };
+    }
+    return {
+      stepSize: STEP_SIZES.NORMAL,
+      fontType: FONT_TYPES.STANDARD,
+      inputMode: INPUT_MODES.TEXT,
+      neurodivergence: 'ADHD',
+      breakInterval: 25,
+      aiTone: ['calm'],
+      verbosity: 3
+    };
+  };
+
+  const [preferences, setPreferences] = useState(loadPreferences());
   const [isEditing, setIsEditing] = useState(false);
   const [editedPrefs, setEditedPrefs] = useState(preferences);
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  // Load user stats
+  useEffect(() => {
+    const loadStats = async () => {
+      if (!user?.uid) return;
+      
+      try {
+        setLoadingStats(true);
+        const data = await userAPI.getStats(user.uid);
+        setStats(data);
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    loadStats();
+  }, [user]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -37,10 +81,19 @@ const Profile = () => {
   };
 
   const handleSave = () => {
-    // Save to localStorage
-    localStorage.setItem('stepSize', editedPrefs.stepSize);
-    localStorage.setItem('fontType', editedPrefs.fontType);
-    localStorage.setItem('inputMode', editedPrefs.inputMode);
+    // Save to userPreferences format (matching ProfileSetup)
+    const updatedPrefs = {
+      neurodivergence: editedPrefs.neurodivergence,
+      stepSize: editedPrefs.stepSize,
+      breakInterval: editedPrefs.breakInterval,
+      fatigues: ['long paragraphs', 'noise'],
+      aiTone: editedPrefs.aiTone,
+      verbosity: editedPrefs.verbosity,
+      fontType: editedPrefs.fontType,
+      inputMode: editedPrefs.inputMode
+    };
+    
+    localStorage.setItem('userPreferences', JSON.stringify(updatedPrefs));
     
     // Apply font change immediately
     if (editedPrefs.fontType === FONT_TYPES.DYSLEXIC) {
@@ -51,6 +104,16 @@ const Profile = () => {
     
     setPreferences(editedPrefs);
     setIsEditing(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      localStorage.clear(); // Clear all user data
+      navigate(ROUTES.LOGIN);
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
 
   const getStepSizeLabel = (size) => {
@@ -220,22 +283,30 @@ const Profile = () => {
         </Card>
 
         {/* Stats Card */}
-        <Card className="shadow-xl border border-gray-100 backdrop-blur-sm bg-white/95 mb-6">
-          <h3 className="text-xl font-semibold text-calm-text mb-4">Your Progress</h3>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-3xl font-bold text-calm-primary">0</p>
-              <p className="text-sm text-calm-textLight mt-1">Tasks Completed</p>
+        <Card className="shadow-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm bg-white/95 dark:bg-gray-800/95 mb-6">
+          <h3 className="text-xl font-semibold text-calm-text dark:text-white mb-4">Your Progress</h3>
+          {loadingStats ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-calm-primary"></div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-3xl font-bold text-green-600">0</p>
-              <p className="text-sm text-calm-textLight mt-1">Steps Done</p>
+          ) : stats ? (
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-3xl font-bold text-calm-primary dark:text-blue-400">{stats.total_tasks_completed}</p>
+                <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Tasks Completed</p>
+              </div>
+              <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.total_steps_completed}</p>
+                <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Steps Done</p>
+              </div>
+              <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.total_tasks_active}</p>
+                <p className="text-sm text-calm-textLight dark:text-gray-300 mt-1">Active Tasks</p>
+              </div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <p className="text-3xl font-bold text-purple-600">0</p>
-              <p className="text-sm text-calm-textLight mt-1">Day Streak</p>
-            </div>
-          </div>
+          ) : (
+            <p className="text-calm-textLight dark:text-gray-300 text-center py-4">Start completing tasks to see your progress!</p>
+          )}
         </Card>
 
         {/* Action Button */}
@@ -244,13 +315,29 @@ const Profile = () => {
           size="large"
           fullWidth
           onClick={() => navigate(ROUTES.HOME)}
-          className="shadow-lg"
+          className="shadow-lg mb-4"
         >
           <div className="flex items-center justify-center gap-3">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             <span className="text-lg font-semibold">Start New Task</span>
+          </div>
+        </Button>
+
+        {/* Logout Button */}
+        <Button
+          variant="secondary"
+          size="large"
+          fullWidth
+          onClick={handleLogout}
+          className="shadow-lg"
+        >
+          <div className="flex items-center justify-center gap-3">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="text-lg font-semibold">Logout</span>
           </div>
         </Button>
       </div>

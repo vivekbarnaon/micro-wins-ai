@@ -5,24 +5,62 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import EnergySelector from '../components/EnergySelector';
 import Logo from '../components/Logo';
 import AnimatedBackground from '../components/AnimatedBackground';
 import { ROUTES, ENERGY_LEVELS } from '../utils/constants';
+import { tasksAPI } from '../services/api';
 
 const Home = () => {
   const navigate = useNavigate();
+  const authContext = useAuth();
+  const user = authContext?.user;
   const [taskInput, setTaskInput] = useState('');
   const [energyLevel, setEnergyLevel] = useState(ENERGY_LEVELS.MEDIUM);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleStartTask = () => {
+  const handleStartTask = async () => {
     if (!taskInput.trim()) return;
     
-    // TODO: Create task via API
-    // For now, navigate to task page
-    navigate(ROUTES.TASK);
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Get user preferences from localStorage
+      const prefs = JSON.parse(localStorage.getItem('userPreferences') || '{}');
+      
+      // Map energy level to step granularity
+      const stepGranularityMap = {
+        [ENERGY_LEVELS.LOW]: 'micro',
+        [ENERGY_LEVELS.MEDIUM]: 'normal',
+        [ENERGY_LEVELS.HIGH]: 'macro'
+      };
+
+      // Create task with backend API
+      const response = await tasksAPI.createTask({
+        user_id: user?.uid || 'guest',
+        task: taskInput,
+        neurodivergence: prefs.neurodivergence || 'ADHD',
+        step_granularity: prefs.stepSize || stepGranularityMap[energyLevel],
+        break_interval_minutes: prefs.breakInterval || 25,
+        fatigue_triggers: prefs.fatigues || ['long paragraphs'],
+        ai_tone: prefs.aiTone || ['calm'],
+        response_verbosity: prefs.verbosity || 3
+      });
+
+      // Store task_id and navigate
+      localStorage.setItem('currentTaskId', response.task_id);
+      navigate(ROUTES.TASK);
+    } catch (err) {
+      console.error('Failed to create task:', err);
+      setError(err.message || 'Failed to create task. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -87,20 +125,34 @@ const Home = () => {
             </p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
+
           {/* Start Button */}
           <Button
             variant="primary"
             size="large"
             fullWidth
             onClick={handleStartTask}
-            disabled={!taskInput.trim()}
+            disabled={!taskInput.trim() || isLoading}
             className="shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
           >
             <div className="flex items-center justify-center gap-3">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isLoading ? (
+                <svg className="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-              <span className="text-lg font-semibold">Start Breaking It Down</span>
+              )}
+              <span className="text-lg font-semibold">{isLoading ? 'Creating...' : 'Start Task'}</span>
             </div>
           </Button>
         </Card>

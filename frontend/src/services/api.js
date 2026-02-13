@@ -46,6 +46,10 @@ export const userAPI = {
       body: JSON.stringify(profileData),
     });
   },
+
+  getStats: (userId) => {
+    return apiRequest(`/user/stats?user_id=${userId}`);
+  },
 };
 
 

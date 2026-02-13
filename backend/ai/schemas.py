@@ -1,26 +1,56 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional, Literal
 
 
-class Step(BaseModel):
-    step_number: int = Field(description="Order of the step")
-    text: str = Field(
-        description="One small, single-action step. No compound sentences."
+class NeuroUserProfile(BaseModel):
+    """User's neurodivergent profile for personalized task breakdown"""
+    user_id: str
+    
+    # 🧠 Cognitive traits
+    neurodivergence: Literal["ADHD", "Dyslexia", "Autism"] = "ADHD"
+    
+    # ⚡ Energy patterns
+    break_interval_minutes: int = Field(
+        default=25,
+        ge=5,
+        le=120,
+        description="Break interval in minutes between work sessions"
     )
-    estimated_time_minutes: int = Field(
+    fatigue_triggers: Optional[List[str]] = Field(
+        default=None,
+        description="Factors that commonly cause fatigue (e.g. noise, long sessions)"
+    )
+    
+    # 🗣️ AI behavior preferences
+    ai_tone: List[Literal["calm", "Friendly", "strict"]] = Field(default=["calm"])
+    response_verbosity: int = Field(
+        default=3,
         ge=1,
         le=5,
-        description="Estimated minutes to complete this step"
+        description="Controls response detail level (1=simple and short, 5=detailed)"
+    )
+    step_granularity: Literal["micro", "normal", "macro"] = "normal"
+
+
+class BreakdownStep(BaseModel):
+    """Individual step in task breakdown"""
+    step_number: int = Field(description="Step number in the breakdown")
+    step_task: str = Field(
+        description="Generate one small single step at a time, don't use two sentences"
+    )
+    estimated_time_minutes: int = Field(
+        description="Estimated minutes to complete the action"
     )
 
 
-class TaskBreakdown(BaseModel):
-    task_name: str = Field(description="Short name of the task")
+class NeuroTaskBreakdown(BaseModel):
+    """Neurodivergent-friendly task breakdown"""
+    task_name: str = Field(description="Name of the task")
     difficulty_level: int = Field(
         ge=1,
         le=5,
-        description="Difficulty level from 1 (easy) to 5 (hard)"
+        description="Difficulty level on a scale of 1-5"
     )
-    steps: List[Step] = Field(
-        description="Ordered list of micro-steps"
+    breakdown: List[BreakdownStep] = Field(
+        description="High-level phases of the task"
     )
