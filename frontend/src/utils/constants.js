@@ -7,6 +7,7 @@ export const STEP_SIZES = {
 export const FONT_TYPES = {
   STANDARD: 'standard',
   DYSLEXIC: 'dyslexic',
+  LEXEND: 'lexend',
 };
 
 export const INPUT_MODES = {

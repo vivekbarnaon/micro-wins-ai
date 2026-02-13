@@ -18,12 +18,16 @@ A modern, minimal, and gamified productivity companion for neurodivergent and ne
 
 ## ✨ Features
 
-- **Task Breakdown & Chat:** Step-by-step task flow in a chat-like interface.
+- **LLM-Powered Task Breakdown:** Any user input is auto-broken into micro-steps using AI (Groq LLM).
+- **Chat-Based Flow:** Step-by-step tasking in a chat-like interface.
 - **Reminders & Break Timer:** Gentle, motivational reminders and break control (no pressure!).
 - **Gamified Rewards:** Earn points, streaks, and motivational messages for progress.
-- **Progress Dashboard:** See your stats, streaks, and rewards in your profile.
-- **Real-Time Sync:** Profile and progress update instantly.
+- **Virtual Badges:** Earn and view badges for milestones and streaks (profile UI, backend logic).
+- **Voice Commands:** Create tasks using speech-to-text (browser voice input).
+- **Font Accessibility:** Toggle OpenDyslexic or Lexend fonts for neuro-inclusive reading (profile/preferences).
+- **Real-Time Sync:** Profile, badges, and progress update instantly.
 - **Minimal, Accessible UI:** Clean, distraction-free, and neurodivergent-friendly design.
+- **Privacy-First:** No PII sent to LLM, all data local, user-controlled.
 
 ---
 
@@ -93,6 +97,7 @@ frontend/
 ## 🏆 Reward & Progress System
 - **Points:** Earned for each completed task (bonus for streaks, difficulty, on-time completion)
 - **Streaks:** Daily progress streaks tracked and rewarded
+- **Virtual Badges:** Earn badges for first task, streaks, 10 tasks, hard tasks, and more
 - **Motivational Messages:** Positive feedback based on your progress
 
 ---
@@ -100,6 +105,9 @@ frontend/
 ## 💡 Why Micro-Wins?
 - Big goals can be overwhelming. Micro-wins make progress visible, rewarding, and fun.
 - Designed for real humans—no pressure, just progress!
+- Neuro-inclusive: Voice, font, and UI accessibility built-in.
+- AI granularity: Real micro-steps, not generic todos.
+- Privacy: No personal data sent to LLM.
 
 ---
 

@@ -1,7 +1,7 @@
 import json
 import azure.functions as func
-
 from database.db import get_db_connection
+from user.badges import BADGES
 
 
 def handle_mark_step_done(req: func.HttpRequest) -> func.HttpResponse:
@@ -156,6 +156,31 @@ def handle_mark_step_done(req: func.HttpRequest) -> func.HttpResponse:
                     """,
                     (user_id, reward_increment, 1, today.isoformat())
                 )
+
+            # --- BADGE LOGIC ---
+            # 1. First Task Badge
+            cursor.execute("SELECT COUNT(*) as total FROM tasks WHERE user_id = ? AND status = 'completed'", (user_id,))
+            total_completed = cursor.fetchone()["total"]
+            if total_completed == 1:
+                cursor.execute("INSERT OR IGNORE INTO user_badges (user_id, badge_code) VALUES (?, ?)", (user_id, "first_task"))
+
+            # 2. 3-Day Streak Badge
+            if streak == 3:
+                cursor.execute("INSERT OR IGNORE INTO user_badges (user_id, badge_code) VALUES (?, ?)", (user_id, "streak_3"))
+
+            # 3. 7-Day Streak Badge
+            if streak == 7:
+                cursor.execute("INSERT OR IGNORE INTO user_badges (user_id, badge_code) VALUES (?, ?)", (user_id, "streak_7"))
+
+            # 4. 10 Tasks Badge
+            if total_completed == 10:
+                cursor.execute("INSERT OR IGNORE INTO user_badges (user_id, badge_code) VALUES (?, ?)", (user_id, "ten_tasks"))
+
+            # 5. Hard Worker Badge (if last completed task was hard)
+            cursor.execute("SELECT difficulty_level FROM tasks WHERE task_id = ?", (task_id,))
+            task_row = cursor.fetchone()
+            if task_row and task_row["difficulty_level"] >= 3:
+                cursor.execute("INSERT OR IGNORE INTO user_badges (user_id, badge_code) VALUES (?, ?)", (user_id, "hard_worker"))
         conn.commit()
         conn.close()
 

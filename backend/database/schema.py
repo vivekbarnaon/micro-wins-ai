@@ -2,12 +2,23 @@ from database.db import get_db_connection
 
 
 def create_tables():
+
     """
     Create all required tables if they do not exist.
     Run this once on app startup.
     """
     conn = get_db_connection()
     cursor = conn.cursor()
+    # User badges table (virtual badge system)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_badges (
+            user_id TEXT NOT NULL,
+            badge_code TEXT NOT NULL,
+            earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, badge_code),
+            FOREIGN KEY (user_id) REFERENCES users (user_id)
+        )
+    """)
 
   
     # Users table (preferences only)
@@ -22,7 +33,6 @@ def create_tables():
     """)
 
     # Tasks table
-    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             task_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +48,6 @@ def create_tables():
 
     
     # Task steps table
-    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS task_steps (
             step_id INTEGER PRIMARY KEY AUTOINCREMENT,

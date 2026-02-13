@@ -91,8 +91,25 @@ def handle_get_user_stats(req: func.HttpRequest) -> func.HttpResponse:
     )
     recent_tasks = cursor.fetchall()
 
-    conn.close()
 
+    # Fetch earned badges
+    cursor = get_db_connection().cursor()
+    cursor.execute("SELECT badge_code, earned_at FROM user_badges WHERE user_id = ?", (user_id,))
+    badge_rows = cursor.fetchall()
+    from user.badges import BADGES
+    badge_dict = {b["code"]: b for b in BADGES}
+    earned_badges = []
+    for row in badge_rows:
+        code = row["badge_code"]
+        badge = badge_dict.get(code)
+        if badge:
+            earned_badges.append({
+                "code": code,
+                "name": badge["name"],
+                "description": badge["description"],
+                "emoji": badge["emoji"],
+                "earned_at": row["earned_at"]
+            })
 
     # Motivational message logic
     if streak >= 7:
@@ -113,6 +130,7 @@ def handle_get_user_stats(req: func.HttpRequest) -> func.HttpResponse:
         "streak": streak,
         "last_completed_date": last_completed_date,
         "motivational_message": motivational_message,
+        "badges": earned_badges,
         "recent_tasks": [
             {
                 "task_name": task["task_name"],

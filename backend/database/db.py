@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DB_PATH = os.getenv("DB_PATH", "smart_companion.db")
+DB_PATH = os.getenv("DB_PATH", "micro_wins.db")
 
 
 def get_db_connection():

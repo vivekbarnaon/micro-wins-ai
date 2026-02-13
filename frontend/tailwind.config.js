@@ -21,7 +21,8 @@ export default {
       },
       fontFamily: {
         standard: ['Inter', 'system-ui', 'sans-serif'],
-        dyslexic: ['Comic Sans MS', 'sans-serif'],
+        dyslexic: ['OpenDyslexic3', 'Comic Sans MS', 'sans-serif'],
+        lexend: ['Lexend', 'Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
         'blob': 'blob 7s infinite',

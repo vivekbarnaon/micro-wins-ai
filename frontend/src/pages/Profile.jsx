@@ -112,10 +112,11 @@ const Profile = () => {
     localStorage.setItem('userPreferences', JSON.stringify(updatedPrefs));
     
     // Apply font change immediately
+    document.body.classList.remove('dyslexic-font', 'lexend-font');
     if (editedPrefs.fontType === FONT_TYPES.DYSLEXIC) {
       document.body.classList.add('dyslexic-font');
-    } else {
-      document.body.classList.remove('dyslexic-font');
+    } else if (editedPrefs.fontType === FONT_TYPES.LEXEND) {
+      document.body.classList.add('lexend-font');
     }
     
     setPreferences(editedPrefs);
@@ -339,6 +340,29 @@ const Profile = () => {
                   {stats.motivational_message}
                 </p>
               </div>
+
+              {/* Earned Badges */}
+              {stats.badges && stats.badges.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-calm-text dark:text-white text-lg font-semibold mb-2">Your Badges</h4>
+                  <div className="flex flex-wrap gap-4 justify-center">
+                    {stats.badges.map((badge) => (
+                      <div key={badge.code} className="flex flex-col items-center group">
+                        <span
+                          className="text-4xl md:text-5xl select-none transition-transform group-hover:scale-110"
+                          title={badge.description}
+                          aria-label={badge.name}
+                        >
+                          {badge.emoji}
+                        </span>
+                        <span className="text-xs mt-1 text-calm-textLight dark:text-gray-300 text-center max-w-[80px]">
+                          {badge.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <p className="text-calm-textLight dark:text-gray-300 text-center py-4">Start completing tasks to see your progress!</p>
