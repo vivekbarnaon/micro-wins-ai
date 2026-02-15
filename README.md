@@ -1,5 +1,17 @@
+
+# 🧠 Micro Wins AI – Smart Task Companion
+
+A full-stack AI-powered micro-task productivity system built using:
+
+- Azure Functions (Python)
+- React + Vite
+- SQLite
+- Docker & Docker Compose
+
+---
+
 # <span align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=36&duration=3000&pause=500&color=6EE7B7&center=true&vCenter=true&width=600&lines=Micro-Wins" alt="Micro-Wins Gradient Animated Title"/>
+   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=36&duration=3000&pause=500&color=6EE7B7&center=true&vCenter=true&width=600&lines=Micro-Wins" alt="Micro-Wins Gradient Animated Title"/>
 </span>
 
 ---
@@ -53,6 +65,7 @@ A modern, minimal, and gamified productivity companion for neurodivergent and ne
 
 ---
 
+
 ## 🛠️ Local Setup
 
 1. **Clone the repo:**
@@ -75,6 +88,82 @@ A modern, minimal, and gamified productivity companion for neurodivergent and ne
 4. **Open in browser:**
    - Frontend: [http://localhost:5173](http://localhost:5173)
    - Backend: [http://localhost:7071/api](http://localhost:7071/api)
+
+---
+
+## 🐳 Run the Project Using Docker
+
+This project is fully containerized.
+You can run both backend and frontend using Docker Compose.
+
+### 🔧 Prerequisites
+
+- Docker installed
+- Docker Compose installed
+
+Verify installation:
+
+```sh
+docker --version
+docker compose version
+```
+
+### 🚀 Build and Run the Application
+
+From the project root directory (where `docker-compose.yml` exists):
+
+```sh
+docker compose up --build
+```
+
+This will:
+- Build backend container (Azure Functions + SQLite)
+- Build frontend container (React + Vite + Nginx)
+- Start both services
+
+### 🌐 Access the Application
+
+After successful startup:
+
+**Frontend**  
+http://localhost:3000
+
+**Backend Health Check**  
+http://localhost:8080/api/health
+
+Expected response:
+
+```json
+{
+  "status": "ok",
+  "service": "smart-companion-backend"
+}
+```
+
+### 🛑 Stop the Application
+
+Press:
+
+`Ctrl + C`
+
+Or run in another terminal:
+
+```sh
+docker compose down
+```
+
+### 📦 Project Architecture
+
+- **Frontend:** React (Vite) served via Nginx
+- **Backend:** Azure Functions (Python 3.10)
+- **Database:** SQLite (auto-created on container startup)
+- **Orchestration:** Docker Compose
+
+### 💡 Notes
+
+- No external database is required.
+- The SQLite database is created automatically inside the container.
+- The application runs fully offline once built.
 
 ---
 
