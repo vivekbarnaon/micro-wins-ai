@@ -37,7 +37,7 @@ def get_profile(req: func.HttpRequest) -> func.HttpResponse:
     return add_cors_headers(handle_get_profile(req))
 
 
-@app.route(route="user/profile", methods=["PUT", "OPTIONS"], auth_level=func.AuthLevel.ANONYMOUS)
+@app.route(route="user/profile/update", methods=["PUT", "OPTIONS"], auth_level=func.AuthLevel.ANONYMOUS)
 def update_profile(req: func.HttpRequest) -> func.HttpResponse:
     if req.method == "OPTIONS":
         return add_cors_headers(func.HttpResponse(status_code=200))

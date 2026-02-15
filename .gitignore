@@ -58,3 +58,7 @@ lerna-debug.log*
 .nuxt/
 .turbo/
 *.tsbuildinfo
+
+
+backend/micro_wins.db
+*.db

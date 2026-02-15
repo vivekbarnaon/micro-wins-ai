@@ -41,7 +41,7 @@ export const userAPI = {
   },
 
   updateProfile: (profileData) => {
-    return apiRequest('/user/profile', {
+    return apiRequest('/user/profile/update', {
       method: 'PUT',
       body: JSON.stringify(profileData),
     });
