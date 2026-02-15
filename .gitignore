@@ -62,4 +62,4 @@ lerna-debug.log*
 
 backend/micro_wins.db
 *.db
-backend/local.settings.json
+
