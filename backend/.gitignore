@@ -1,3 +1,5 @@
+# Ignore local Azure Functions settings (contains sensitive keys)
+local.settings.json
 bin
 obj
 csx
@@ -20,7 +22,6 @@ project.lock.json
 /data
 .secrets
 appsettings.json
-
 
 node_modules
 dist
