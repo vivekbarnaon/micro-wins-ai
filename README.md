@@ -224,12 +224,12 @@ frontend/
       "FUNCTIONS_WORKER_RUNTIME": "python", // Azure Functions runtime
       "AzureWebJobsStorage": "",            // (Optional) Storage connection string
       "GROQ_API_KEY": "...",               // Groq LLM API key
-      "DB_CONNECTION_STRING": "..."         // Database connection string (for local/dev, SQLite used in Docker)
+      "DB_CONNECTION_STRING": "..."         // Database connection string (not used in Docker/local mode)
    }
 }
 ```
 
-> ℹ️ For local development, sensitive keys (like `GROQ_API_KEY`) are stored here. In production, use environment variables or Azure Key Vault.
+> ℹ️ **Note:** For local development and Docker, the app uses SQLite for storage. The `DB_CONNECTION_STRING` in `local.settings.json` is not used in this mode. In production, use environment variables or Azure Key Vault for sensitive keys and connection strings.
 
 ---
 
