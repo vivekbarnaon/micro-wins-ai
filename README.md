@@ -169,17 +169,67 @@ docker compose down
 
 ## ⚙️ Folder Structure
 
+
 ```
 backend/
-  ├── function_app.py
-  ├── user/           # User profile & stats endpoints
-  ├── task/           # Task logic (steps, mark done)
-  ├── database/       # SQLite schema & connection
+   ├── AI_SETUP.md                # AI setup instructions
+   ├── Dockerfile                 # Backend Docker config
+   ├── function_app.py            # Azure Functions entrypoint
+   ├── host.json                  # Azure Functions host config
+   ├── local.settings.json        # Local dev settings (see below for key details)
+   ├── manual_db_init.py          # Manual DB initialization script
+   ├── requirements.txt           # Python dependencies
+   ├── ai/
+   │   ├── llm_client.py          # LLM API integration
+   │   ├── prompt.py              # Prompt templates & logic
+   │   ├── schemas.py             # Data schemas for LLM
+   │   └── task_breaker.py        # Task breakdown logic
+   ├── database/
+   │   ├── db.py                  # DB connection & helpers
+   │   └── schema.py              # DB schema definitions
+   ├── task/
+   │   ├── create_task.py         # Create new tasks
+   │   ├── get_current_step.py    # Get current step for a task
+   │   └── mark_step_done.py      # Mark step as done
+   ├── user/
+   │   ├── badges.py              # Badge logic
+   │   ├── get_stats.py           # User stats endpoints
+   │   └── user_profile.py        # User profile endpoints
+
 frontend/
-  ├── src/pages/      # HomeChat, Task, Profile
-  ├── src/services/   # API logic
-  ├── src/components/ # UI components
+   ├── Dockerfile                 # Frontend Docker config
+   ├── index.html                 # Main HTML entry
+   ├── package.json               # NPM dependencies
+   ├── src/
+   │   ├── App.jsx                # Main React app
+   │   ├── main.jsx               # React entrypoint
+   │   ├── assets/                # Static assets (images, etc.)
+   │   ├── components/            # Reusable UI components
+   │   ├── contexts/              # React context providers
+   │   ├── firebase/              # Firebase config & auth
+   │   ├── hooks/                 # Custom React hooks
+   │   ├── layouts/               # Layout components
+   │   ├── pages/                 # App pages (Home, Task, Profile, etc.)
+   │   ├── services/              # API service logic
+   │   ├── styles/                # CSS/theme files
+   │   └── utils/                 # Utility functions/constants
 ```
+
+### 🔑 backend/local.settings.json (Key Reference)
+
+```jsonc
+{
+   "IsEncrypted": false,
+   "Values": {
+      "FUNCTIONS_WORKER_RUNTIME": "python", // Azure Functions runtime
+      "AzureWebJobsStorage": "",            // (Optional) Storage connection string
+      "GROQ_API_KEY": "...",               // Groq LLM API key
+      "DB_CONNECTION_STRING": "..."         // Database connection string (for local/dev, SQLite used in Docker)
+   }
+}
+```
+
+> ℹ️ For local development, sensitive keys (like `GROQ_API_KEY`) are stored here. In production, use environment variables or Azure Key Vault.
 
 ---
 
