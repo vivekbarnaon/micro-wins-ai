@@ -15,7 +15,7 @@ app = func.FunctionApp()
 
 def add_cors_headers(response: func.HttpResponse) -> func.HttpResponse:
     """Add CORS headers to allow frontend access"""
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Origin'] = 'https://micro-wins-ai.vercel.app'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     response.headers['Access-Control-Max-Age'] = '3600'

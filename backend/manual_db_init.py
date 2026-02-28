@@ -1,5 +1,10 @@
+import logging
 from database.schema import create_tables
 
-if __name__ == "__main__":
+logger = logging.getLogger(__name__)
+
+try:
     create_tables()
-    print("Tables created (if not exist)")
+    logger.info("Database initialized successfully")
+except Exception as e:
+    logger.error(f"Database init failed: {e}")

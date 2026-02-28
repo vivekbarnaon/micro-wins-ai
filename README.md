@@ -1,4 +1,6 @@
 
+> ℹ️ **Note:** The backend uses SQLite for storage, which is automatically created inside the backend container. No external database setup is required, so users will not face any database issues when running with Docker.
+
 # 🧠 Micro Wins AI – Smart Task Companion
 
 A full-stack AI-powered micro-task productivity system built using:

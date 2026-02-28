@@ -1,9 +1,11 @@
-import sqlite3
 import os
-
-DB_PATH = os.getenv("DB_PATH", "micro_wins.db")
+import pyodbc
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
+    connection_string = os.getenv("DB_CONNECTION_STRING")
+
+    if not connection_string:
+        raise Exception("DB_CONNECTION_STRING not set")
+
+    conn = pyodbc.connect(connection_string)
     return conn

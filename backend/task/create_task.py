@@ -1,5 +1,4 @@
 import json
-import sqlite3
 import azure.functions as func
 
 from database.db import get_db_connection
@@ -18,7 +17,7 @@ def handle_create_task(req: func.HttpRequest) -> func.HttpResponse:
 
     user_id = body.get("user_id")
     task_description = body.get("task")
-    
+
     # User profile parameters (with defaults)
     neurodivergence = body.get("neurodivergence", "ADHD")
     step_granularity = body.get("step_granularity", "normal")
@@ -44,84 +43,97 @@ def handle_create_task(req: func.HttpRequest) -> func.HttpResponse:
         step_granularity=step_granularity
     )
 
-    # Generate steps using LLM with neurodivergent profile
+    # Generate steps using LLM
     try:
         breakdown = generate_neuro_task_breakdown(
             task_description=task_description,
             user_profile=user_profile
         )
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"LLM generation failed: {str(e)}", exc_info=True)
         return func.HttpResponse(
             f"LLM generation failed: {str(e)}",
             status_code=500
         )
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    # Insert task
-    cursor.execute(
-        """
-        INSERT INTO tasks (user_id, task_name, difficulty_level, current_step_index)
-        VALUES (?, ?, ?, 0)
-        """,
-        (
-            user_id,
-            breakdown.task_name,
-            breakdown.difficulty_level
-        )
-    )
-
-    task_id = cursor.lastrowid
-
-    # Insert steps (note: breakdown.breakdown instead of breakdown.steps)
-    for step in breakdown.breakdown:
+        # 🔥 Insert task and get inserted ID safely (SQL Server way)
         cursor.execute(
             """
-            INSERT INTO task_steps (task_id, step_order, step_text, estimated_time_minutes)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO tasks (user_id, task_name, difficulty_level, current_step_index)
+            OUTPUT INSERTED.task_id
+            VALUES (?, ?, ?, 0)
             """,
             (
-                task_id,
-                step.step_number,
-                step.step_task,
-                step.estimated_time_minutes
+                user_id,
+                breakdown.task_name,
+                breakdown.difficulty_level
             )
         )
 
-    conn.commit()
+        task_id_row = cursor.fetchone()
 
-    # Fetch first step only
-    cursor.execute(
-        """
-        SELECT step_order, step_text, estimated_time_minutes
-        FROM task_steps
-        WHERE task_id = ? AND step_order = 1
-        """,
-        (task_id,)
-    )
+        if not task_id_row or task_id_row[0] is None:
+            raise Exception("Failed to retrieve inserted task_id")
 
-    first_step = cursor.fetchone()
-    conn.close()
+        task_id = int(task_id_row[0])
 
-    if not first_step:
-        return func.HttpResponse(
-            "No steps generated",
-            status_code=500
+        # Insert steps
+        for step in breakdown.breakdown:
+            cursor.execute(
+                """
+                INSERT INTO task_steps (task_id, step_order, step_text, estimated_time_minutes)
+                VALUES (?, ?, ?, ?)
+                """,
+                (
+                    task_id,
+                    step.step_number,
+                    step.step_task,
+                    step.estimated_time_minutes
+                )
+            )
+
+        conn.commit()
+
+        # Fetch first step
+        cursor.execute(
+            """
+            SELECT step_order, step_text, estimated_time_minutes
+            FROM task_steps
+            WHERE task_id = ? AND step_order = 1
+            """,
+            (task_id,)
         )
 
-    response = {
-        "task_id": task_id,
-        "step_number": first_step["step_order"],
-        "step_text": first_step["step_text"],
-        "estimated_time_minutes": first_step["estimated_time_minutes"]
-    }
+        first_step = cursor.fetchone()
 
-    return func.HttpResponse(
-        json.dumps(response),
-        status_code=200,
-        mimetype="application/json"
-    )
+        if not first_step:
+            conn.close()
+            return func.HttpResponse(
+                "No steps generated",
+                status_code=500
+            )
+
+        response = {
+            "task_id": task_id,
+            "step_number": first_step[0],
+            "step_text": first_step[1],
+            "estimated_time_minutes": first_step[2]
+        }
+
+        cursor.close()
+        conn.close()
+
+        return func.HttpResponse(
+            json.dumps(response),
+            status_code=200,
+            mimetype="application/json"
+        )
+
+    except Exception as e:
+        return func.HttpResponse(
+            f"Database error: {str(e)}",
+            status_code=500
+        )
